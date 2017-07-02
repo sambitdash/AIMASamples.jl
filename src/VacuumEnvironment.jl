@@ -153,7 +153,7 @@ const Rule_A_Dirty=MappingRule(State_A_Dirty,Action_Suck)
 const Rule_B_Dirty=MappingRule(State_B_Dirty,Action_Suck)
 
 type SimpleReflexVacuumAgentProgram <: SimpleReflexAgentProgram
-  rules::Vector{MappingRule}
+  rules::Vector{Rule}
   SimpleReflexVacuumAgentProgram()=new([Rule_A_Clean, Rule_B_Clean,
                                         Rule_A_Dirty, Rule_B_Dirty])
 end
@@ -161,7 +161,6 @@ end
 function rule_match(state::State, rules::Vector{Rule})
   for rule in rules
     if (state == rule.state)
-      println(rule.action)
       return rule
     end
   end
