@@ -2,4 +2,7 @@ using aimasamples
 using Base.Test
 
 # write your own tests here
-@test 1 == 2
+@test RunTableDrivenVacuumAgent()==RunTableDrivenVacuumAgentResult
+@test RunSimpleReflexVacuumAgent()==RunSimpleReflexVacuumAgentResult
+@test RunReflexVacuumAgent()==RunReflexVacuumAgentResult
+@test RunModelBasedVacuumAgent()==RunModelBasedVacuumAgentResult

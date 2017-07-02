@@ -1,15 +1,17 @@
-using Compat
-
 export execute,
        Environment,
-       Action,
-          NoOpAction,
+       Action, Action_NoOp,
        Percept,
+       Agent,
        AgentProgram,
           TableDrivenAgentProgram,
           ReflexVacuumAgentProgram,
           SimpleReflexAgentProgram,
-          ModelBasedReflexAgentProgram
+          ModelBasedReflexAgentProgram,
+       State,
+       Rule
+
+using Compat
 
 """
 An agent perceives an *environment* through sensors and acts with actuators.
@@ -142,20 +144,6 @@ function execute(ap::SimpleReflexAgentProgram, percept::Percept)
     return action;
 end
 
-"""
-Given a *State* to provide an *Action* that the agent must execute.
-
-Matching is useful for both:
-
-1. *SimpleReflexAgentProgram*
-2. *ModelBasedReflexAgentProgram*
-
-Both *AgentPrograms* have state models in-built, hence the rule matches the
-relevant *Action* to be picked up.
-"""
-function rule_match(state::State, rules::Vector{Rule})
-    error(E_ABSTRACT)
-end
 
 """
 *ModelBasedReflexAgentProgram* uses a model which is close to the
@@ -167,10 +155,10 @@ The *AgentProgram* updates the states based on the *Percepts* received.
 @compat abstract type ModelBasedReflexAgentProgram <: AgentProgram end
 
 function execute(ap::ModelBasedReflexAgentProgram, percept::Percept)
-    ap.state = update_state(ap.state, ap.action, percept, ap.model);
-    rule = rule_match(state, ap.rules);
-    action = rule.action
-    return action
+    ap.state = update_state(ap.state, ap.action, percept, ap.model)
+    rule = rule_match(ap.state, ap.rules)
+    ap.action = rule.action
+    return ap.action
 end
 
 """
@@ -181,10 +169,11 @@ gather from the description in the book.
 
 pg. 35 Fig.2.1 AIMA 3e
 """
-type Agent{AP<: AgentProgram}
+type Agent{AP}
   program::AP
+  Agent{AP}(ap::AP) where{AP<:AgentProgram}=new(ap)
 end
 
-function execute{AP<:AgentProgram}(a::Agent{AP}, percept::Percept)
+function execute(a::Agent, percept::Percept)
   action = execute(a.program, percept)
 end
