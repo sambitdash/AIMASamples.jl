@@ -101,9 +101,6 @@ function execute(ap::TableDrivenAgentProgram, percept::Percept)
   return action
 end
 
-append(percepts,percept)=error(E_ABSTRACT)
-lookup(table,percepts)=error(E_ABSTRACT)
-
 """
 *Rule* is an abstract representation of a framework that associates a *State*
 condition to the appropriate action.
@@ -167,6 +164,38 @@ function execute(ap::ModelBasedReflexAgentProgram, percept::Percept)
 end
 
 update_state(state, action, percept, model)=error(E_ABSTRACT)
+
+"""
+*SimpleProblemSolvingAgentProgram* formulates the goal then the problem.
+Searches for the sequence of *Actions* that would solve the problem.
+
+pg.67 AIMA 3e
+"""
+@compat abstract type SimpleProblemSolvingAgentProgram <: AgentProgram end
+
+function execute(ap::SimpleProblemSolvingAgentProgram, percept::Percept)
+  #persistent: seq, an action sequence, initially empty
+  #state, some description of the current world state
+  #goal , a goal, initially null
+  #problem, a problem formulation
+  ap.state = update_state(ap.state, percept)
+  if isempty(ap.seq)
+    ap.goal = formulate_goal(ap.state)
+    ap.problem = formulate_problem(ap.state, ap.goal)
+    ap.seq = search(ap.problem)
+    if ap.seq == failure
+       return nothing
+    end
+  end
+  action = first(ap.seq)
+  ap.seq = rest(ap.seq)
+  return action
+end
+
+update_state(state, percept)=error(E_ABSTRACT)
+formulate_goal(state)=error(E_ABSTRACT)
+formulate_problem(state,goal)=error(E_ABSTRACT)
+search(problem)=error(E_ABSTRACT)
 
 
 """

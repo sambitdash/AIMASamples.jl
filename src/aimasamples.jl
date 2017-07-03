@@ -8,6 +8,7 @@ interface defined.
 =#
 module core
 include("errors.jl")
+include("utils.jl")
 include("agents.jl")
 end
 

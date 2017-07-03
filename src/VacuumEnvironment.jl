@@ -6,9 +6,8 @@ export RunTableDrivenVacuumAgent,RunTableDrivenVacuumAgentResult,
 
 using Compat
 
-import Base: print
 using ..core
-import ..core:append,lookup,interpret_input,rule_match,update_state,execute
+import ..core:lookup,interpret_input,rule_match,update_state,execute
 
 #import core:execute
 
@@ -98,10 +97,8 @@ type TableDrivenVacuumAgentProgram <: TableDrivenAgentProgram
     end
 end
 
-function append(percepts::Vector{VacuumPercept}, percept::VacuumPercept)
-  push!(percepts, percept)
-end
 
+#Default lookup in utils.jl will throw exception
 function lookup(table::Dict{Vector{VacuumPercept}, Action},
                 percepts::Vector{VacuumPercept})
     if (haskey(table, percepts))
