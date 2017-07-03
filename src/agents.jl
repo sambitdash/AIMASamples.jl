@@ -101,6 +101,9 @@ function execute(ap::TableDrivenAgentProgram, percept::Percept)
   return action
 end
 
+append(percepts,percept)=error(E_ABSTRACT)
+lookup(table,percepts)=error(E_ABSTRACT)
+
 """
 *Rule* is an abstract representation of a framework that associates a *State*
 condition to the appropriate action.
@@ -144,6 +147,8 @@ function execute(ap::SimpleReflexAgentProgram, percept::Percept)
     return action;
 end
 
+interpret_input(percept)=error(E_ABSTRACT)
+rule_match(state,rules)=error(E_ABSTRACT)
 
 """
 *ModelBasedReflexAgentProgram* uses a model which is close to the
@@ -160,6 +165,9 @@ function execute(ap::ModelBasedReflexAgentProgram, percept::Percept)
     ap.action = rule.action
     return ap.action
 end
+
+update_state(state, action, percept, model)=error(E_ABSTRACT)
+
 
 """
 Agent perceives *Environment* through sensors and acts based on actuators.

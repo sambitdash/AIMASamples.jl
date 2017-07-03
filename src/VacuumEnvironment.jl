@@ -1,3 +1,4 @@
+module Vacuum
 export RunTableDrivenVacuumAgent,RunTableDrivenVacuumAgentResult,
        RunSimpleReflexVacuumAgent,RunSimpleReflexVacuumAgentResult,
        RunReflexVacuumAgent, RunReflexVacuumAgentResult,
@@ -6,7 +7,8 @@ export RunTableDrivenVacuumAgent,RunTableDrivenVacuumAgentResult,
 using Compat
 
 import Base: print
-#using ..core
+using ..core
+import ..core:append,lookup,interpret_input,rule_match,update_state,execute
 
 #import core:execute
 
@@ -295,7 +297,8 @@ type ModelBasedVacuumAgentProgram <: ModelBasedReflexAgentProgram
   end
 end
 
-function update_state(state, action, percept, model)
+function update_state(state::ModelVacuumState, action::Action,
+  percept::VacuumPercept, model::Vector{Int})
 
   #Update model with previous state
   for i=1:4
@@ -364,3 +367,5 @@ const RunReflexVacuumAgentResult=[Action_Right, Action_Suck, Action_Suck]
 RunReflexVacuumAgent()=RunVacuumAgent(ReflexVacuumAgentProgram)
 RunModelBasedVacuumAgentResult=[Action_Right, Action_Suck, Action_Suck]
 RunModelBasedVacuumAgent()=RunVacuumAgent(ModelBasedVacuumAgentProgram)
+
+end
