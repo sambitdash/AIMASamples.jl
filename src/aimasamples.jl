@@ -10,6 +10,7 @@ module core
 include("errors.jl")
 include("utils.jl")
 include("agents.jl")
+include("search.jl")
 end
 
 #=
@@ -18,5 +19,6 @@ module encapsulation in this file.
 =#
 
 include("VacuumEnvironment.jl")
+include("Romania.jl")
 
 end # module

@@ -195,7 +195,7 @@ end
 update_state(state, percept)=error(E_ABSTRACT)
 formulate_goal(state)=error(E_ABSTRACT)
 formulate_problem(state,goal)=error(E_ABSTRACT)
-search(problem)=error(E_ABSTRACT)
+
 
 
 """
