@@ -1,15 +1,11 @@
 module Vacuum
-export RunTableDrivenVacuumAgent,RunTableDrivenVacuumAgentResult,
-       RunSimpleReflexVacuumAgent,RunSimpleReflexVacuumAgentResult,
+export RunTableDrivenVacuumAgent, RunTableDrivenVacuumAgentResult,
+       RunSimpleReflexVacuumAgent, RunSimpleReflexVacuumAgentResult,
        RunReflexVacuumAgent, RunReflexVacuumAgentResult,
        RunModelBasedVacuumAgent, RunModelBasedVacuumAgentResult
 
 using Compat
-
-using ..core
-import ..core:lookup,interpret_input,rule_match,update_state,execute
-
-#import core:execute
+using AIMACore
 
 #=
 Concrete instantiation of VacuumEnvironment using the models described in
@@ -48,9 +44,9 @@ There are 4 possible *Percept*.
 # Making immutable ensures additional hash function overloading not
 # needed for Julia Dict.
 immutable VacuumPercept <: Percept
-  location_status::Tuple{Symbol, Symbol}
-  VacuumPercept(loc::AbstractString, cstate::AbstractString)=
-    new((Symbol(loc),Symbol(cstate)))
+    location_status::Tuple{Symbol, Symbol}
+    VacuumPercept(loc::AbstractString, cstate::AbstractString)=
+        new((Symbol(loc), Symbol(cstate)))
 end
 
 const PAC = VacuumPercept("loc_A", "Clean")
@@ -68,8 +64,8 @@ If Dirty, Suck the Dirt  --> Suck
 # Making immutable ensures additional hash function overloading not
 # needed for Julia Dict.
 immutable VacuumAction <: Action
-  sym::Symbol
-  VacuumAction(str::AbstractString)=new(Symbol(str))
+    sym::Symbol
+    VacuumAction(str::AbstractString) = new(Symbol(str))
 end
 
 const Action_Left = VacuumAction("Left")
@@ -80,7 +76,7 @@ const Action_Suck = VacuumAction("Suck")
 Concrete implementation for the Vacuum Agent using the
 *TableDrivenAgentProgram*
 """
-type TableDrivenVacuumAgentProgram <: TableDrivenAgentProgram
+mutable struct TableDrivenVacuumAgentProgram <: TableDrivenAgentProgram
     table::Dict{Vector{VacuumPercept}, Action}
     percepts::Vector{VacuumPercept}
 
@@ -105,7 +101,7 @@ function lookup(table::Dict{Vector{VacuumPercept}, Action},
         action = table[percepts]
         return action
     else
-      return nothing
+        return nothing
     end
 end
 
@@ -115,17 +111,17 @@ the *SimpleReflexAgentProgram* contains no knowledge of overall model nor has
 information of historical states.
 """
 immutable ReflexVacuumState <: State
-  location_status::Tuple{Symbol, Symbol}
-  ReflexVacuumState(location_status::Tuple{Symbol, Symbol})=new(location_status)
+    location_status::Tuple{Symbol, Symbol}
+    ReflexVacuumState(location_status::Tuple{Symbol, Symbol})=new(location_status)
 end
 
 ReflexVacuumState(loc::AbstractString, cstate::AbstractString)=
-  ReflexVacuumState((Symbol(loc), Symbol(cstate)))
+    ReflexVacuumState((Symbol(loc), Symbol(cstate)))
 
-const State_A_Clean=ReflexVacuumState("loc_A","Clean")
-const State_B_Clean=ReflexVacuumState("loc_B","Clean")
-const State_A_Dirty=ReflexVacuumState("loc_A","Dirty")
-const State_B_Dirty=ReflexVacuumState("loc_B","Dirty")
+const State_A_Clean=ReflexVacuumState("loc_A", "Clean")
+const State_B_Clean=ReflexVacuumState("loc_B", "Clean")
+const State_A_Dirty=ReflexVacuumState("loc_A", "Dirty")
+const State_B_Dirty=ReflexVacuumState("loc_B", "Dirty")
 
 """
 A method needed by the SimpleReflexAgentProgram abstraction to map
@@ -141,28 +137,28 @@ function interpret_input(percept::VacuumPercept)
     return ReflexVacuumState(percept.location_status)
 end
 
-type MappingRule <: Rule
-  state::State
-  action::Action
+mutable struct MappingRule <: Rule
+    state::State
+    action::Action
 end
 
-const Rule_A_Clean=MappingRule(State_A_Clean,Action_Right)
-const Rule_B_Clean=MappingRule(State_B_Clean,Action_Left)
-const Rule_A_Dirty=MappingRule(State_A_Dirty,Action_Suck)
-const Rule_B_Dirty=MappingRule(State_B_Dirty,Action_Suck)
+const Rule_A_Clean = MappingRule(State_A_Clean,Action_Right)
+const Rule_B_Clean = MappingRule(State_B_Clean,Action_Left)
+const Rule_A_Dirty = MappingRule(State_A_Dirty,Action_Suck)
+const Rule_B_Dirty = MappingRule(State_B_Dirty,Action_Suck)
 
-type SimpleReflexVacuumAgentProgram <: SimpleReflexAgentProgram
-  rules::Vector{Rule}
-  SimpleReflexVacuumAgentProgram()=new([Rule_A_Clean, Rule_B_Clean,
-                                        Rule_A_Dirty, Rule_B_Dirty])
+mutable struct SimpleReflexVacuumAgentProgram <: SimpleReflexAgentProgram
+    rules::Vector{Rule}
+    SimpleReflexVacuumAgentProgram() = new([Rule_A_Clean, Rule_B_Clean,
+                                            Rule_A_Dirty, Rule_B_Dirty])
 end
 
 function rule_match(state::State, rules::Vector{Rule})
-  for rule in rules
-    if (state == rule.state)
-      return rule
+    for rule in rules
+        if (state == rule.state)
+            return rule
+        end
     end
-  end
 end
 
 """
@@ -264,80 +260,77 @@ Note: States here are very different from that of the
 """
 
 immutable ModelVacuumState <: State
-  val::Tuple{Int,Int,Int,Int}
-  ModelVacuumState(v::Tuple{Int,Int,Int,Int})=new(v)
+    val::Tuple{Int,Int,Int,Int}
+    ModelVacuumState(v::Tuple{Int,Int,Int,Int}) = new(v)
 end
 
-ModelVacuumState(v::Vector{Int})=ModelVacuumState(tuple(v...))
+ModelVacuumState(v::Vector{Int}) = ModelVacuumState(tuple(v...))
 
-const R1=MappingRule(ModelVacuumState([1, 0, 1,-1]), Action_Suck)
-const R2=MappingRule(ModelVacuumState([1, 0, 0,-1]), Action_Right)
-const R3=MappingRule(ModelVacuumState([0, 1,-1, 1]), Action_Suck)
-const R4=MappingRule(ModelVacuumState([0, 1,-1, 0]), Action_Left)
-const R5=MappingRule(ModelVacuumState([1, 0, 1, 0]), Action_Suck)
-const R6=MappingRule(ModelVacuumState([1, 0, 0, 0]), Action_NoOp)
-const R7=MappingRule(ModelVacuumState([0, 1, 0, 1]), Action_Suck)
-const R8=MappingRule(ModelVacuumState([0, 1, 0, 0]), Action_NoOp)
+const R1 = MappingRule(ModelVacuumState([1, 0, 1,-1]), Action_Suck)
+const R2 = MappingRule(ModelVacuumState([1, 0, 0,-1]), Action_Right)
+const R3 = MappingRule(ModelVacuumState([0, 1,-1, 1]), Action_Suck)
+const R4 = MappingRule(ModelVacuumState([0, 1,-1, 0]), Action_Left)
+const R5 = MappingRule(ModelVacuumState([1, 0, 1, 0]), Action_Suck)
+const R6 = MappingRule(ModelVacuumState([1, 0, 0, 0]), Action_NoOp)
+const R7 = MappingRule(ModelVacuumState([0, 1, 0, 1]), Action_Suck)
+const R8 = MappingRule(ModelVacuumState([0, 1, 0, 0]), Action_NoOp)
 
-type ModelBasedVacuumAgentProgram <: ModelBasedReflexAgentProgram
-  model::Vector{Int}
-  rules::Vector{Rule}
-  state::ModelVacuumState
-  action::Action
+mutable struct ModelBasedVacuumAgentProgram <: ModelBasedReflexAgentProgram
+    model::Vector{Int}
+    rules::Vector{Rule}
+    state::ModelVacuumState
+    action::Action
 
-  function ModelBasedVacuumAgentProgram()
-    model = [-1,-1,-1,-1]
-    rules = [R1, R2, R3, R4, R5, R6, R7, R8]
-    state = ModelVacuumState([-1,-1,-1,-1])
-    action = Action_NoOp
-    return new(model, rules, state, action)
-  end
+    function ModelBasedVacuumAgentProgram()
+        model = [-1,-1,-1,-1]
+        rules = [R1, R2, R3, R4, R5, R6, R7, R8]
+        state = ModelVacuumState([-1,-1,-1,-1])
+        action = Action_NoOp
+        return new(model, rules, state, action)
+    end
 end
 
 function update_state(state::ModelVacuumState, action::Action,
-  percept::VacuumPercept, model::Vector{Int})
+    percept::VacuumPercept, model::Vector{Int})
 
-  #Update model with previous state
-  for i=1:4
-    model[i] = state.val[i]
-  end
-
-  loc = percept.location_status[1]
-  status = percept.location_status[2]
-
-  #Apply the previous action on the model as well
-  #If previous action does not match reset the model to initialized
-  if (action == Action_Right)
-    if (loc == :loc_A)
-      copy!(model,[-1,-1,-1,-1])
+    #Update model with previous state
+    for i=1:4
+        model[i] = state.val[i]
     end
-  elseif (action == Action_Left)
-    if (loc == :loc_B)
-      copy!(model,[-1,-1,-1,-1])
+
+    loc = percept.location_status[1]
+    status = percept.location_status[2]
+
+    #Apply the previous action on the model as well
+    #If previous action does not match reset the model to initialized
+    if (action == Action_Right)
+        if (loc == :loc_A)
+            copy!(model,[-1,-1,-1,-1])
+        end
+    elseif (action == Action_Left)
+        if (loc == :loc_B)
+            copy!(model,[-1,-1,-1,-1])
+        end
+    elseif (action == Action_Suck)
+        if (model[1]==1)
+            model[3] = 0
+        elseif (model[2]==1)
+            model[4] = 0
+        end
     end
-  elseif (action == Action_Suck)
-    if (model[1]==1)
-      model[3] = 0
-    elseif (model[2]==1)
-      model[4] = 0
+
+    if (loc == Symbol("loc_A"))
+        model[1] = 1; model[2] = 0
+        model[3] = (status == Symbol("Dirty"))?1:0
+    else
+        model[1] = 0; model[2] = 1
+        model[4] = (status == Symbol("Dirty"))?1:0
     end
-  end
 
-  if (loc == Symbol("loc_A"))
-    model[1] = 1; model[2] = 0
-    model[3] = (status == Symbol("Dirty"))?1:0
-  else
-    model[1] = 0; model[2] = 1
-    model[4] = (status == Symbol("Dirty"))?1:0
-  end
+    println(model)
 
-  println(model)
-
-  return ModelVacuumState(model)
+    return ModelVacuumState(model)
 end
-
-
-
 
 function RunVacuumAgent(AP::Type)
   percept_sequence = [PAC PAD PBD]
