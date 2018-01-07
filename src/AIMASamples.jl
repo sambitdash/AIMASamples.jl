@@ -5,7 +5,7 @@ try
         Pkg.add("AIMACore")
     end
 catch
-    Pkg.clone("https://github.com/sambitdash/AIMACore.jl.git")
+    Pkg.clone("https://github.com/sambitdash/AIMACore.jl")
 end
 
 include("VacuumEnvironment.jl")
