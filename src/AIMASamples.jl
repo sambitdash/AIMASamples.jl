@@ -1,4 +1,4 @@
-module AIMAsamples
+module AIMASamples
 
 try
     if Pkg.installed("AIMACore") == nothing
