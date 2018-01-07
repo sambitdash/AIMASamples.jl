@@ -5,10 +5,10 @@ export solveRomanianMapProblemBFS, solveRomanianMapProblemResultBFS,
        solveRomanianMapProblemDLS
 
 using DataStructures
+using AIMACore
 
 import Base: isempty, in
-
-using AIMACore
+import AIMACore: search, goal_test, step_cost, actions, result
 
 struct In <: State
   place::Symbol
@@ -88,7 +88,7 @@ end
 in(state::In, nodes::PriorityQueue{In, Node{In}, Base.Order.ForwardOrdering}) =
     haskey(nodes, state)
 
-const solveRomanianMapProblem ResultBFS =
+const solveRomanianMapProblemResultBFS =
     [(:Arad, 0), (:Sibiu, 140), (:Fagaras,239), (:Bucharest, 450)]
 const solveRomanianMapProblemResultMinCost =
     [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317), (:Bucharest, 418)]

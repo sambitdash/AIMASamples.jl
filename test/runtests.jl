@@ -1,7 +1,6 @@
-using aimasamples.Vacuum
 using Base.Test
 
-# write your own tests here
+using AIMASamples.Vacuum
 @testset "Vacuum" begin
   @test RunTableDrivenVacuumAgent()==RunTableDrivenVacuumAgentResult
   @test RunSimpleReflexVacuumAgent()==RunSimpleReflexVacuumAgentResult
@@ -9,8 +8,7 @@ using Base.Test
   @test RunModelBasedVacuumAgent()==RunModelBasedVacuumAgentResult
 end
 
-using aimasamples.Romania
-
+using AIMASamples.Romania
 @testset "Romania" begin
   @test solveRomanianMapProblemBFS()==solveRomanianMapProblemResultBFS
   @test solveRomanianMapProblemUCS()==solveRomanianMapProblemResultMinCost

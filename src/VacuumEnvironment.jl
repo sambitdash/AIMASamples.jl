@@ -7,6 +7,8 @@ export RunTableDrivenVacuumAgent, RunTableDrivenVacuumAgentResult,
 using Compat
 using AIMACore
 
+import AIMACore: execute, interpret_input, rule_match, update_state, lookup
+
 #=
 Concrete instantiation of VacuumEnvironment using the models described in
 
@@ -154,11 +156,8 @@ mutable struct SimpleReflexVacuumAgentProgram <: SimpleReflexAgentProgram
 end
 
 function rule_match(state::State, rules::Vector{Rule})
-    for rule in rules
-        if (state == rule.state)
-            return rule
-        end
-    end
+    i = findfirst(x -> x.state == state, rules)
+    return rules[i]
 end
 
 """
@@ -333,20 +332,15 @@ function update_state(state::ModelVacuumState, action::Action,
 end
 
 function RunVacuumAgent(AP::Type)
-  percept_sequence = [PAC PAD PBD]
-
-  @printf("Run the %s\n", string(AP))
-
-  agent=Agent{AP}(AP())
-
-  actions=Vector{Any}()
-
-  for percept in percept_sequence
-    action = execute(agent, percept)
-    push!(actions, action)
-  end
-
-  return actions
+    percept_sequence = [PAC PAD PBD]
+    @printf("Run the %s\n", string(AP))
+    agent=Agent{AP}(AP())
+    actions=[]
+    for percept in percept_sequence
+        action = execute(agent, percept)
+        push!(actions, action)
+    end
+    return actions
 end
 
 const RunTableDrivenVacuumAgentResult=[Action_Right, Action_Suck, nothing]
