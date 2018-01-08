@@ -174,9 +174,9 @@ Fig 2.8 Pg. 48, AIMA 3ed
 function execute(ap::ReflexVacuumAgentProgram, percept::VacuumPercept)
     location = percept.location_status[1]
     status = percept.location_status[2]
-    action = (status == Symbol("Dirty"))? Action_Suck:
-             (location == :loc_A)? Action_Right:
-             (location == :loc_B)? Action_Left : nothing
+    action = (status == Symbol("Dirty")) ? Action_Suck:
+             (location == :loc_A) ? Action_Right:
+             (location == :loc_B) ? Action_Left : nothing
     return action
 end
 
@@ -320,10 +320,10 @@ function update_state(state::ModelVacuumState, action::Action,
 
     if (loc == Symbol("loc_A"))
         model[1] = 1; model[2] = 0
-        model[3] = (status == Symbol("Dirty"))?1:0
+        model[3] = (status == Symbol("Dirty")) ? 1 : 0
     else
         model[1] = 0; model[2] = 1
-        model[4] = (status == Symbol("Dirty"))?1:0
+        model[4] = (status == Symbol("Dirty")) ? 1 : 0
     end
 
     println(model)

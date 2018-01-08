@@ -78,25 +78,13 @@ function actions(problem::RomaniaRoadMapProblem, state::In)
     return ret
 end
 
-function in(state::In, nodes::Vector{Node{In}})
-    for node in nodes
-        state == node.state && return true
-    end
-    return false
-end
-
-in(state::In, nodes::PriorityQueue{In, Node{In}, Base.Order.ForwardOrdering}) =
-    haskey(nodes, state)
-
 const solveRomanianMapProblemResultBFS =
     [(:Arad, 0), (:Sibiu, 140), (:Fagaras,239), (:Bucharest, 450)]
 const solveRomanianMapProblemResultMinCost =
     [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317), (:Bucharest, 418)]
 
-const BFS = BreadthFirstSearch{Vector{Node{In}}, Set{In}}()
-const UCS = UniformCostSearch{
-                PriorityQueue{In, Node{In}, Base.Order.ForwardOrdering},
-                Set{In}}()
+const BFS = BreadthFirstSearch(In(""))
+const UCS = UniformCostSearch(In(""))
 const DLS = DepthLimitedSearch(9)
 
 function solveRomanianMapProblem{T}(obj::T)
