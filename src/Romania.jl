@@ -2,13 +2,19 @@ module Romania
 
 export solveRomanianMapProblemBFS, solveRomanianMapProblemResultBFS,
        solveRomanianMapProblemUCS, solveRomanianMapProblemResultMinCost,
-       solveRomanianMapProblemDLS
+       solveRomanianMapProblemDLS, solveRomanianMapProblemResultDLS,
+       solveRomanianMapProblemIDS, solveRomanianMapProblemResultIDS,
+       solveRomanianMapProblemRBF, solveRomanianMapProblemResultRBF,
+       solveRomanianMapProblemGSB, solveRomanianMapProblemResultGSB,
+       solveRomanianMapProblemGSD, solveRomanianMapProblemResultGSD,
+       solveRomanianMapProblemGSU, solveRomanianMapProblemResultGSU,
+       solveRomanianMapProblemGSAS,solveRomanianMapProblemResultGSAS,
+       solveRomanianMapProblemGSBF,solveRomanianMapProblemResultGSBF
 
-using DataStructures
 using AIMACore
 
 import Base: isempty, in
-import AIMACore: search, goal_test, step_cost, actions, result
+import AIMACore: search, goal_test, step_cost, actions, result, heuristic
 
 struct In <: State
   place::Symbol
@@ -24,6 +30,7 @@ Go(place::AbstractString) = Go(Symbol(place))
 
 mutable struct RomaniaRoadMapProblem{SA <: SearchAlgorithm} <: Problem
     places::Dict{Symbol, Dict{Symbol,Int}}
+    hSLD::Dict{Symbol, Int}
     initial_state::In
     goal_state::In
     search_algorithm::SA
@@ -50,23 +57,46 @@ mutable struct RomaniaRoadMapProblem{SA <: SearchAlgorithm} <: Problem
             :Urziceni=>Dict(:Bucharest=>85, :Hirsova=>98, :Vaslui=>142),
             :Vaslui=>Dict(:Iasi=>92, :Urziceni=>142),
             :Zerind=>Dict(:Arad=>75, :Oradea=>71))
-        return new(places, init, goal, search_algorithm)
+
+        hSLD = Dict(:Arad=>366,
+                    :Bucharest=>0,
+                    :Craiova=>160,
+                    :Drobeta=>242,
+                    :Eforie=>161,
+                    :Fagaras=>176,
+                    :Giurgiu=>77,
+                    :Hirsova=>151,
+                    :Iasi=>226,
+                    :Lugoj=>244,
+                    :Mehadia=>241,
+                    :Neamt=>234,
+                    :Oradea=>380,
+                    :Pitesti=>100,
+                    :RimnicuVilcea=>193,
+                    :Sibiu=>253,
+                    :Timisoara=>329,
+                    :Urziceni=>80,
+                    :Vaslui=>199,
+                    :Zerind=>374)
+
+        return new(places, hSLD, init, goal, search_algorithm)
     end
 end
 
 function result(problem::RomaniaRoadMapProblem, state::In, action::Go)
-    start = state.place
-    reach = action.place
-    successors = problem.places[start]
-    haskey(successors, reach) && return In(reach)
+    s = state.place
+    r = action.place
+    haskey(problem.places[s], r) && return In(r)
     error("Invalid location cannot be reached")
 end
 
 function step_cost(problem::RomaniaRoadMapProblem, state::In, action::Go)
-    start = state.place
-    reach = action.place
-    return problem.places[start][reach]
+    s = state.place
+    r = action.place
+    return problem.places[s][r]
 end
+
+heuristic(problem::RomaniaRoadMapProblem, state::In) = problem.hSLD[state.place]
 
 goal_test(problem::RomaniaRoadMapProblem, state::In) = (state == problem.goal_state)
 
@@ -82,15 +112,35 @@ const solveRomanianMapProblemResultBFS =
     [(:Arad, 0), (:Sibiu, 140), (:Fagaras,239), (:Bucharest, 450)]
 const solveRomanianMapProblemResultMinCost =
     [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317), (:Bucharest, 418)]
+const solveRomanianMapProblemResultDLS =
+    [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317), (:Bucharest, 418)]
+const solveRomanianMapProblemResultIDS =
+    [(:Arad, 0), (:Sibiu, 140), (:Fagaras,239), (:Bucharest, 450)]
+
+const solveRomanianMapProblemResultGSB = solveRomanianMapProblemResultMinCost
+const solveRomanianMapProblemResultGSU = solveRomanianMapProblemResultMinCost
+const solveRomanianMapProblemResultRBF = solveRomanianMapProblemResultMinCost
+const solveRomanianMapProblemResultGSD = solveRomanianMapProblemResultIDS
+const solveRomanianMapProblemResultGSBF = solveRomanianMapProblemResultIDS
+const solveRomanianMapProblemResultGSAS = solveRomanianMapProblemResultMinCost
 
 const BFS = BreadthFirstSearch(In(""))
 const UCS = UniformCostSearch(In(""))
-const DLS = DepthLimitedSearch(9)
+const DLS = DepthLimitedSearch(4)
+const IDS = IterativeDeepeningSearch()
+const RBF = RecursiveBestFirstSearch(In(""))
+
+const GSB = GraphSearchBreadth(In(""))
+const GSD = GraphSearchDepth(In(""))
+const GSU = GraphSearchUniformCost(In(""))
+
+const GSBF = GraphSearchBestFirst(In(""))
+const GSAS = GraphSearchAStar(In(""))
 
 function solveRomanianMapProblem{T}(obj::T)
     problem = RomaniaRoadMapProblem{T}(In("Arad"), In("Bucharest"), obj)
     path = search(problem)
-    isa(path,Symbol) && return path
+    path isa Symbol && return path
     ret=[]
     for iter in path
         push!(ret, (iter.state.place, iter.path_cost))
@@ -101,5 +151,12 @@ end
 solveRomanianMapProblemBFS() = solveRomanianMapProblem(BFS)
 solveRomanianMapProblemUCS() = solveRomanianMapProblem(UCS)
 solveRomanianMapProblemDLS() = solveRomanianMapProblem(DLS)
+solveRomanianMapProblemIDS() = solveRomanianMapProblem(IDS)
+solveRomanianMapProblemRBF() = solveRomanianMapProblem(RBF)
+solveRomanianMapProblemGSB() = solveRomanianMapProblem(GSB)
+solveRomanianMapProblemGSD() = solveRomanianMapProblem(GSD)
+solveRomanianMapProblemGSU() = solveRomanianMapProblem(GSU)
+solveRomanianMapProblemGSBF() = solveRomanianMapProblem(GSBF)
+solveRomanianMapProblemGSAS() = solveRomanianMapProblem(GSAS)
 
 end
