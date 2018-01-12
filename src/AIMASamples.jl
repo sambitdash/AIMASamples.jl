@@ -10,5 +10,6 @@ end
 
 include("VacuumEnvironment.jl")
 include("Romania.jl")
+include("SlideBlock.jl")
 
 end # module
