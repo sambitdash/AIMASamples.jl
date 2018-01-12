@@ -21,3 +21,13 @@ using AIMASamples.Romania
     @test solveRomanianMapProblemGSBF() == solveRomanianMapProblemResultGSBF
     @test solveRomanianMapProblemRBF() == solveRomanianMapProblemResultRBF
 end
+
+using AIMASamples.SlideBlock
+@testset "SlideBlock" begin
+    @test length(solveSlideBlockProblemRBFS()) == 27
+    @test length(solveSlideBlockProblemGSU())  == 27
+    @test length(solveSlideBlockProblemGSBF()) != 27
+    @test length(solveSlideBlockProblemGSBF2())!= 27
+    @test length(solveSlideBlockProblemGSAS()) == 27
+    @test length(solveSlideBlockProblemGSAS2())== 27
+end
