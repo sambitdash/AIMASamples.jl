@@ -39,11 +39,11 @@ end
 using AIMASamples.Queens
 @testset "Queens" begin
     @test begin
-        ret = solveNQueensProblemGSU()()
+        ret = solveNQueensProblemGSU()
         println("$(ret[1]) to\n\n$(ret[end])")   #Added for coverage only
         length(ret) == 9
     end
-    solveNQueensProblemGSBF() = solveNQueensProblem(GSBF, h)
-    solveNQueensProblemGSAS() = solveNQueensProblem(GSAS, h)
-    solveNQueensProblemRBFS() = solveNQueensProblem(RBFS, h)
+    @test length(solveNQueensProblemGSBF()) == 9
+    @test length(solveNQueensProblemGSAS()) == 9
+    @test length(solveNQueensProblemRBFS()) == 9
 end

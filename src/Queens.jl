@@ -3,11 +3,13 @@ module Queens
 export  solveNQueensProblemRBFS,
         solveNQueensProblemGSU,
         solveNQueensProblemGSBF,
-        solveNQueensProblemGSAS
+        solveNQueensProblemGSAS,
+        solveNQueensProblemHCS
 
 using AIMACore
 
-import AIMACore: search, goal_test, step_cost, actions, result, heuristic
+import AIMACore: search, goal_test, step_cost, actions,
+                 result, heuristic, state_value, successor_states
 import Base: ==, show, convert, hash
 
 const E_INVALID_INPUT_LENGTH = "The input parameter is of a wrong length"
@@ -17,32 +19,36 @@ const E_INVALID_ACTION = "The action is invalid"
 
 const SIZE = 8
 
-struct Grid{T} <: State
-    qloc::Vector{Tuple{Int, Int}}
+mutable struct Grid{T} <: State
+    qloc::Vector{Int}
+    function Grid{T}(loc::Vector{Int}) where T
+        @assert length(loc) == T E_INVALID_INPUT_LENGTH
+        new(loc)
+    end
 end
 
 # This heuristic is not relevant as this is the same for every step
-h{T}(g::Grid{T}) = T - length(g.qloc)
+h{T}(g::Grid{T}) = T - count(x->x > 0, g.qloc)
 
-Grid(qloc::Vector{Tuple{Int, Int}}, T) = Grid{T}(qloc)
-
-Grid(T::Int) = Grid(Vector{Tuple{Int, Int}}(), T)
+Grid(T::Int) = Grid{T}(zeros(Int, T))
 
 function convert(::Type{BitArray{2}}, g::Grid{T}) where T
     m = BitArray{2}(T, T)
-    for l in g.qloc
-        m[l[2],l[1]] = true
+    l = g.qloc
+    for i = 1:T
+        l[i] == 0 && continue
+        m[l[i],i] = true
     end
     return m
 end
 
 ==(g1::Grid, g2::Grid) = hash(g1) == hash(g2)
 
-hash(g::Grid{T}, h::UInt) where T = sum([t[1]*(T+1)^t[2] for t in g.qloc])
+hash(g::Grid{T}, h::UInt) where T = sum([UInt(g.qloc[i])*UInt(T+1)^UInt(i) for i=1:T]) + h
 
 function show(io::IO, g::Grid{T}) where T
     m = BitArray{2}(g)
-    a = [ m[i,j] ? 'Q' : ' ' for i=1:T,j=1:T]
+    a = [ m[i,j] ? 'Q' : 'x' for i=1:T,j=1:T]
     for j = 1:T-1
         show(io, a[j,:])
         println(io, "")
@@ -63,27 +69,37 @@ end
 function result(problem::NQueensProblem,
                 state::Grid{T}, action::Place) where T
     qloc = copy(state.qloc)
-    push!(qloc, action.location)
-    return Grid(qloc, T)
+    x, y = action.location
+    qloc[x] = y
+    return Grid{T}(qloc)
 end
 
 step_cost(problem::NQueensProblem, state::Grid, action::Place) = 1
 
 heuristic(problem::NQueensProblem, state::Grid) = problem.h(state)
 
-goal_test(problem::NQueensProblem, state::Grid{T}) where T = length(state.qloc) == T
+goal_test(problem::NQueensProblem, state::Grid{T}) where T =
+    count(x->x > 0, state.qloc) == T
 
 cannot_place(x, y, i, j) = x == i || y == j || x + j == y + i || x + y == i + j
 
-cannot_place(state::Grid, i, j) = any(x->cannot_place(x[1], x[2], i, j), state.qloc)
+function cannot_place(state::Grid{T}, i, j) where T
+    for k = 1:T
+        state.qloc[k] == 0 && continue
+        cannot_place(k, state.qloc[k], i, j) && return true
+    end
+    return false
+end
 
 actions{T}(problem::NQueensProblem, state::Grid{T}) =
     Place.([(i, j) for i=1:T for j=1:T if !cannot_place(state, i, j)])
 
-function solveNQueensProblem(obj::SA, h::Function) where {SA <: SearchAlgorithm}
-    problem = NQueensProblem(Grid(SIZE), obj, h)
+function solveNQueensProblem(obj::SA,
+    h::Function, init_state::Grid=Grid(SIZE)) where {SA <: SearchAlgorithm}
+    problem = NQueensProblem(init_state, obj, h)
     path = search(problem)
     path isa Symbol && return path
+    path isa State && return path
     ret=[]
     count = 0
     for iter in path
@@ -102,5 +118,32 @@ solveNQueensProblemGSU() = solveNQueensProblem(GSU, h)
 solveNQueensProblemGSBF() = solveNQueensProblem(GSBF, h)
 solveNQueensProblemGSAS() = solveNQueensProblem(GSAS, h)
 solveNQueensProblemRBFS() = solveNQueensProblem(RBFS, h)
+
+function queen_pair_score(g::Grid{T}) where T
+    l = g.qloc
+    return div(T*(T-1),2) -
+        sum([l[j] > 0 && l[i] > 0 && cannot_place(j, l[j], i, l[i]) for i=1:T for j=i+1:T])
+end
+
+random_state(T::Int) = Grid{T}([rand(1:T) for i = 1:T])
+
+state_value(problem::NQueensProblem, state::Grid) = queen_pair_score(state)
+
+function successor_states(problem::NQueensProblem, state::Grid{T}) where T
+    v = Vector{Grid{T}}()
+    for i = 1:T
+        s = [j for j = 1:T if j != state.qloc[i]]
+        for n in s
+            l = copy(state.qloc)
+            l[i] = n
+            push!(v, Grid{T}(l))
+        end
+    end
+    return v
+end
+
+HCS = HillClimbingSearch(Grid(SIZE), 100)
+
+solveNQueensProblemHCS() = solveNQueensProblem(HCS, h, random_state(SIZE))
 
 end
