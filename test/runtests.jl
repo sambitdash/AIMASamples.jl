@@ -24,10 +24,14 @@ end
 
 using AIMASamples.SlideBlock
 @testset "SlideBlock" begin
-    @test length(solveSlideBlockProblemRBFS()) == 27
+    @test begin
+        ret = solveSlideBlockProblemRBFS()
+        println("$(ret[1]) to\n\n$(ret[end])")   #Added for coverage only
+        length(ret) == 27
+    end
     @test length(solveSlideBlockProblemGSU())  == 27
-    @test length(solveSlideBlockProblemGSBF()) != 27
-    @test length(solveSlideBlockProblemGSBF2())!= 27
+    @test length(solveSlideBlockProblemGSBF()) == 71
+    @test length(solveSlideBlockProblemGSBF2())== 195
     @test length(solveSlideBlockProblemGSAS()) == 27
     @test length(solveSlideBlockProblemGSAS2())== 27
 end

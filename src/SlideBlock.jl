@@ -37,7 +37,7 @@ function Grid(v::Vector{Int}, T)
         @assert n < N E_INVALID_INPUT
         loc[n+1] = XY(i-1, T)
         sum += n
-        sum *= 10
+        sum *= N
     end
     return Grid{T}(loc, sum)
 end
@@ -101,8 +101,8 @@ function result{SA <: SearchAlgorithm, T}(problem::SlideBlockProblem{SA,T},
         loc[1] = (xn, yn)
         loc[i] = (x1, y1)
         #Readjusting the hash
-        hn = (i-1)*(10 ^ (N-(xn-1+T*(yn-1))))
-        h1 = (i-1)*(10 ^ (N-(x1-1+T*(y1-1))))
+        hn = (i-1)*(N ^ (N-(xn-1+T*(yn-1))))
+        h1 = (i-1)*(N ^ (N-(x1-1+T*(y1-1))))
         h = state.h - hn + h1
         return Grid{T}(loc, h)
     else
@@ -139,12 +139,11 @@ function solveSlideBlockProblem{SA}(obj::SA, h::Function)
     return ret
 end
 
-const GSD = GraphSearchDepth(Grid(3))
-const GSU = GraphSearchUniformCost(Grid(3))
-const GSBF = GraphSearchBestFirst(Grid(3))
-const GSAS = GraphSearchAStar(Grid(3))
-
-const RBFS = RecursiveBestFirstSearch(Grid(3))
+GSD = GraphSearchDepth(Grid(3))
+GSU = GraphSearchUniformCost(Grid(3))
+GSBF = GraphSearchBestFirst(Grid(3))
+GSAS = GraphSearchAStar(Grid(3))
+RBFS = RecursiveBestFirstSearch(Grid(3))
 
 solveSlideBlockProblemGSU() = solveSlideBlockProblem(GSU, dist)
 solveSlideBlockProblemGSBF() = solveSlideBlockProblem(GSBF, dist)

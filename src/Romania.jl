@@ -124,18 +124,18 @@ const solveRomanianMapProblemResultGSD = solveRomanianMapProblemResultIDS
 const solveRomanianMapProblemResultGSBF = solveRomanianMapProblemResultIDS
 const solveRomanianMapProblemResultGSAS = solveRomanianMapProblemResultMinCost
 
-const BFS = BreadthFirstSearch(In(""))
-const UCS = UniformCostSearch(In(""))
-const DLS = DepthLimitedSearch(4)
-const IDS = IterativeDeepeningSearch()
-const RBF = RecursiveBestFirstSearch(In(""))
+BFS = BreadthFirstSearch(In(""))
+UCS = UniformCostSearch(In(""))
+DLS = DepthLimitedSearch(4)
+IDS = IterativeDeepeningSearch()
+RBF = RecursiveBestFirstSearch(In(""))
 
-const GSB = GraphSearchBreadth(In(""))
-const GSD = GraphSearchDepth(In(""))
-const GSU = GraphSearchUniformCost(In(""))
+GSB = GraphSearchBreadth(In(""))
+GSD = GraphSearchDepth(In(""))
+GSU = GraphSearchUniformCost(In(""))
 
-const GSBF = GraphSearchBestFirst(In(""))
-const GSAS = GraphSearchAStar(In(""))
+GSBF = GraphSearchBestFirst(In(""))
+GSAS = GraphSearchAStar(In(""))
 
 function solveRomanianMapProblem{T}(obj::T)
     problem = RomaniaRoadMapProblem{T}(In("Arad"), In("Bucharest"), obj)

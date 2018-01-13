@@ -45,7 +45,7 @@ There are 4 possible *Percept*.
 """
 # Making immutable ensures additional hash function overloading not
 # needed for Julia Dict.
-immutable VacuumPercept <: Percept
+struct VacuumPercept <: Percept
     location_status::Tuple{Symbol, Symbol}
     VacuumPercept(loc::AbstractString, cstate::AbstractString)=
         new((Symbol(loc), Symbol(cstate)))
@@ -65,7 +65,7 @@ If Dirty, Suck the Dirt  --> Suck
 """
 # Making immutable ensures additional hash function overloading not
 # needed for Julia Dict.
-immutable VacuumAction <: Action
+struct VacuumAction <: Action
     sym::Symbol
     VacuumAction(str::AbstractString) = new(Symbol(str))
 end
@@ -112,7 +112,7 @@ Technically the data in *Percept* is not very different from *State* as
 the *SimpleReflexAgentProgram* contains no knowledge of overall model nor has
 information of historical states.
 """
-immutable ReflexVacuumState <: State
+struct ReflexVacuumState <: State
     location_status::Tuple{Symbol, Symbol}
     ReflexVacuumState(location_status::Tuple{Symbol, Symbol})=new(location_status)
 end
@@ -169,13 +169,13 @@ It does not depend on the historical percept data.
 Fig 2.8 Pg. 48, AIMA 3ed
 """
 
-@compat immutable ReflexVacuumAgentProgram <: AgentProgram end
+struct ReflexVacuumAgentProgram <: AgentProgram end
 
 function execute(ap::ReflexVacuumAgentProgram, percept::VacuumPercept)
     location = percept.location_status[1]
     status = percept.location_status[2]
-    action = (status == Symbol("Dirty")) ? Action_Suck:
-             (location == :loc_A) ? Action_Right:
+    action = (status == Symbol("Dirty")) ? Action_Suck :
+             (location == :loc_A) ? Action_Right :
              (location == :loc_B) ? Action_Left : nothing
     return action
 end
@@ -258,7 +258,7 @@ Note: States here are very different from that of the
 *SimpleReflexVacuumAgentProgram*
 """
 
-immutable ModelVacuumState <: State
+struct ModelVacuumState <: State
     val::Tuple{Int,Int,Int,Int}
     ModelVacuumState(v::Tuple{Int,Int,Int,Int}) = new(v)
 end
