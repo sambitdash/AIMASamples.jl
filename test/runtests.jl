@@ -30,8 +30,20 @@ using AIMASamples.SlideBlock
         length(ret) == 27
     end
     @test length(solveSlideBlockProblemGSU())  == 27
-    @test length(solveSlideBlockProblemGSBF()) == 71
-    @test length(solveSlideBlockProblemGSBF2())== 195
+    @test length(solveSlideBlockProblemGSBF()) != 27
+    @test length(solveSlideBlockProblemGSBF2())!= 27
     @test length(solveSlideBlockProblemGSAS()) == 27
     @test length(solveSlideBlockProblemGSAS2())== 27
+end
+
+using AIMASamples.Queens
+@testset "Queens" begin
+    @test begin
+        ret = solveNQueensProblemGSU()()
+        println("$(ret[1]) to\n\n$(ret[end])")   #Added for coverage only
+        length(ret) == 9
+    end
+    solveNQueensProblemGSBF() = solveNQueensProblem(GSBF, h)
+    solveNQueensProblemGSAS() = solveNQueensProblem(GSAS, h)
+    solveNQueensProblemRBFS() = solveNQueensProblem(RBFS, h)
 end
