@@ -4,7 +4,8 @@ export  solveNQueensProblemRBFS,
         solveNQueensProblemGSU,
         solveNQueensProblemGSBF,
         solveNQueensProblemGSAS,
-        solveNQueensProblemHCS
+        solveNQueensProblemHCS,
+        solveNQueensProblemSAS
 
 using AIMACore
 
@@ -143,7 +144,9 @@ function successor_states(problem::NQueensProblem, state::Grid{T}) where T
 end
 
 HCS = HillClimbingSearch(Grid(SIZE), 100)
+SAS = SimulatedAnnealingSearch(Grid(SIZE))
 
 solveNQueensProblemHCS() = solveNQueensProblem(HCS, h, random_state(SIZE))
+solveNQueensProblemSAS() = solveNQueensProblem(SAS, h, random_state(SIZE))
 
 end
