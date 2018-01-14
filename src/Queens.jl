@@ -43,6 +43,8 @@ function convert(::Type{BitArray{2}}, g::Grid{T}) where T
     return m
 end
 
+BitArray{2}(g::Grid{T}) where T = convert(BitArray{2}, g)
+
 ==(g1::Grid, g2::Grid) = hash(g1) == hash(g2)
 
 hash(g::Grid{T}, h::UInt) where T = sum([UInt(g.qloc[i])*UInt(T+1)^UInt(i) for i=1:T]) + h

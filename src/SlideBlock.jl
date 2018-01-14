@@ -10,7 +10,7 @@ export  solveSlideBlockProblemRBFS,
 using AIMACore
 
 import AIMACore: search, goal_test, step_cost, actions, result, heuristic
-import Base: ==, show, convert, hash
+import Base: ==, show, hash
 
 const E_INVALID_INPUT_LENGTH = "The input parameter is of a wrong length"
 const E_INVALID_INPUT = "The input parameter is invalid"
@@ -60,6 +60,8 @@ function convert(::Type{Matrix{Int}}, g::Grid{T}) where T
     end
     return m
 end
+
+Matrix{Int}(g::Grid{T}) where T = convert(Matrix{Int}, g)
 
 function show(io::IO, g::Grid{T}) where T
     m = Matrix{Int}(g)
