@@ -333,7 +333,7 @@ end
 
 function RunVacuumAgent(AP::Type)
     percept_sequence = [PAC PAD PBD]
-    @printf("Run the %s\n", string(AP))
+    println("Run the $(string(AP))")
     agent=Agent{AP}(AP())
     actions=[]
     for percept in percept_sequence
