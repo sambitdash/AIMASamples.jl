@@ -24,20 +24,20 @@ dist(n1, n2, N) = dist(XY(n1, N), XY(n2, N))
 
 struct Grid{T} <: State
     loc::Vector{Tuple{Int, Int}}
-    h::Int
+    h::UInt64
 end
 
 function Grid(v::Vector{Int}, T)
     N = T*T
     @assert length(v) == N E_INVALID_INPUT
     loc = Vector{Tuple{Int, Int}}(N)
-    sum = 0
+    sum = UInt(0)
     for i = 1:N
         n = v[i]
         @assert n < N E_INVALID_INPUT
         loc[n+1] = XY(i-1, T)
-        sum += n
-        sum *= N
+        sum += UInt(n)
+        sum *= UInt(N)
     end
     return Grid{T}(loc, sum)
 end
@@ -89,7 +89,7 @@ SlideBlockProblem{SA <: SearchAlgorithm, T}(init::Grid{T}, sa::SA, fh::Function)
 
 function result{SA <: SearchAlgorithm, T}(problem::SlideBlockProblem{SA,T},
     state::Grid{T}, action::Move)
-    N = T*T
+    N = UInt(T*T)
     loc = deepcopy(state.loc)
     x1, y1 = loc[1]
     xn, yn = action.d == :left  ? (x1 - 1, y1) :
@@ -103,8 +103,8 @@ function result{SA <: SearchAlgorithm, T}(problem::SlideBlockProblem{SA,T},
         loc[1] = (xn, yn)
         loc[i] = (x1, y1)
         #Readjusting the hash
-        hn = (i-1)*(N ^ (N-(xn-1+T*(yn-1))))
-        h1 = (i-1)*(N ^ (N-(x1-1+T*(y1-1))))
+        hn = UInt(i-1)*(N ^ (N-UInt(xn-1+T*(yn-1))))
+        h1 = UInt(i-1)*(N ^ (N-UInt(x1-1+T*(y1-1))))
         h = state.h - hn + h1
         return Grid{T}(loc, h)
     else
