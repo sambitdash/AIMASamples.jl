@@ -24,7 +24,7 @@ dist(n1, n2, N) = dist(XY(n1, N), XY(n2, N))
 
 struct Grid{T} <: State
     loc::Vector{Tuple{Int, Int}}
-    h::UInt64
+    h::UInt
 end
 
 function Grid(v::Vector{Int}, T)
@@ -49,7 +49,7 @@ h2{T}(g1::Grid{T}, g2::Grid{T}) = count(g1.loc .!= g2.loc)
 
 ==(g1::Grid, g2::Grid) = hash(g1) == hash(g2)
 
-hash(g::Grid, h::UInt) = g.h + h
+hash(g::Grid, h::UInt) = xor(g.h, h)
 
 function convert(::Type{Matrix{Int}}, g::Grid{T}) where T
     N = T*T
