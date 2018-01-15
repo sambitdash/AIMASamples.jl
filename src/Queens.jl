@@ -5,12 +5,14 @@ export  solveNQueensProblemRBFS,
         solveNQueensProblemGSBF,
         solveNQueensProblemGSAS,
         solveNQueensProblemHCS,
-        solveNQueensProblemSAS
+        solveNQueensProblemSAS,
+        solveNQueensProblemGAS
 
 using AIMACore
 
 import AIMACore: search, goal_test, step_cost, actions,
-                 result, heuristic, state_value, successor_states
+                 result, heuristic, state_value, successor_states,
+                 mutate, reproduce, random_state
 import Base: ==, show, convert, hash
 
 const E_INVALID_INPUT_LENGTH = "The input parameter is of a wrong length"
@@ -82,7 +84,7 @@ step_cost(problem::NQueensProblem, state::Grid, action::Place) = 1
 heuristic(problem::NQueensProblem, state::Grid) = problem.h(state)
 
 goal_test(problem::NQueensProblem, state::Grid{T}) where T =
-    count(x->x > 0, state.qloc) == T
+    count(x->x > 0, state.qloc) == T && state_value(problem, state) == div(T*(T-1), 2)
 
 cannot_place(x, y, i, j) = x == i || y == j || x + j == y + i || x + y == i + j
 
@@ -150,5 +152,55 @@ SAS = SimulatedAnnealingSearch(Grid(SIZE))
 
 solveNQueensProblemHCS() = solveNQueensProblem(HCS, h, random_state(SIZE))
 solveNQueensProblemSAS() = solveNQueensProblem(SAS, h, random_state(SIZE))
+
+random_state(s::Grid{T}) where T = random_state(T)
+mutate(s::Grid{T}) where T = (l = copy(s.qloc); l[rand(1:T)] = rand(1:T); Grid{T}(l))
+
+const BIT_OPERATION = false
+
+function to_bits(s1::Grid{8})
+    b1 = BitArray(24)
+    l = s1.qloc
+    it = 0
+    for i = 1:8
+        n = l[i] - 1
+        b1[it+=1] = (n & 1 != 0)
+        b1[it+=1] = (n & 2 != 0)
+        b1[it+=1] = (n & 4 != 0)
+    end
+    return b1
+end
+
+function from_bits(b::BitArray)
+    l = zeros(Int, 8)
+    it = 0
+    for i = 1:8
+        n = 1
+        n += b[it+=1] ? 1 : 0
+        n += b[it+=1] ? 2 : 0
+        n += b[it+=1] ? 4 : 0
+        l[i] = n
+    end
+    return Grid{8}(l)
+end
+
+function bit_reproduce(s1::Grid{8}, s2::Grid{8})
+    b1 = to_bits(s1)
+    b2 = to_bits(s2)
+    c = rand(1:24)
+    copy!(b1[c+1:24], b2[c+1:24])
+    return from_bits(b1)
+end
+
+function reproduce(s1::Grid{T}, s2::Grid{T}) where T
+    BIT_OPERATION && T == 8 && return bit_reproduce(s1, s2)
+    c = rand(1:T)
+    l = copy(s1.qloc)
+    copy!(l[c+1:T], s2.qloc[c+1:T])
+    return Grid{T}(l)
+end
+
+GAS = GeneticAlgorithmSearch(Grid(SIZE), queen_pair_score)
+solveNQueensProblemGAS() = solveNQueensProblem(GAS, h, random_state(SIZE))
 
 end
