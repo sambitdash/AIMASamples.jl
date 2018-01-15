@@ -6,7 +6,8 @@ export  solveNQueensProblemRBFS,
         solveNQueensProblemGSAS,
         solveNQueensProblemHCS,
         solveNQueensProblemSAS,
-        solveNQueensProblemGAS
+        solveNQueensProblemGAS,
+        solveNQueensProblemGAS9
 
 using AIMACore
 
@@ -154,11 +155,10 @@ solveNQueensProblemHCS() = solveNQueensProblem(HCS, h, random_state(SIZE))
 solveNQueensProblemSAS() = solveNQueensProblem(SAS, h, random_state(SIZE))
 
 random_state(s::Grid{T}) where T = random_state(T)
-mutate(s::Grid{T}) where T = (l = copy(s.qloc); l[rand(1:T)] = rand(1:T); Grid{T}(l))
 
-const BIT_OPERATION = false
+const BIT_OPERATION = true
 
-function to_bits(s1::Grid{8})
+function to_bits(s1::Grid{8}; mutate=false)
     b1 = BitArray(24)
     l = s1.qloc
     it = 0
@@ -167,6 +167,10 @@ function to_bits(s1::Grid{8})
         b1[it+=1] = (n & 1 != 0)
         b1[it+=1] = (n & 2 != 0)
         b1[it+=1] = (n & 4 != 0)
+    end
+    if (mutate)
+        c = rand(1:24)
+        b1[c] = !b1[c]
     end
     return b1
 end
@@ -184,12 +188,21 @@ function from_bits(b::BitArray)
     return Grid{8}(l)
 end
 
+bit_mutate(s::Grid{8}) = to_bits(s, mutate=true) |> from_bits
+
 function bit_reproduce(s1::Grid{8}, s2::Grid{8})
     b1 = to_bits(s1)
     b2 = to_bits(s2)
     c = rand(1:24)
     copy!(b1[c+1:24], b2[c+1:24])
     return from_bits(b1)
+end
+
+function mutate(s::Grid{T}) where T
+    BIT_OPERATION && T == 8 && return bit_mutate(s)
+    l = copy(s.qloc)
+    l[rand(1:T)] = rand(1:T)
+    return Grid{T}(l)
 end
 
 function reproduce(s1::Grid{T}, s2::Grid{T}) where T
@@ -202,5 +215,8 @@ end
 
 GAS = GeneticAlgorithmSearch(Grid(SIZE), queen_pair_score)
 solveNQueensProblemGAS() = solveNQueensProblem(GAS, h, random_state(SIZE))
+
+GAS9 = GeneticAlgorithmSearch(Grid(9), queen_pair_score)
+solveNQueensProblemGAS9() = solveNQueensProblem(GAS9, h, random_state(9))
 
 end

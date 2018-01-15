@@ -48,8 +48,9 @@ using AIMASamples.Queens
     @test length(solveNQueensProblemRBFS()) == 9
     @test begin #This is carried out for coverage only
         solveNQueensProblemHCS()
-        solveNQueensProblemGAS()
         solveNQueensProblemSAS()
+        solveNQueensProblemGAS()
+        solveNQueensProblemGAS9()
         1 == 1
     end
 end
