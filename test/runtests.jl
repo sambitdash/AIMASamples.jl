@@ -1,3 +1,8 @@
+include("../../../src/AIMACore.jl");
+include("../src/AIMASamples.jl");
+
+using AIMACore
+
 using Base.Test
 
 using AIMASamples.Vacuum
@@ -54,3 +59,46 @@ using AIMASamples.Queens
         1 == 1
     end
 end
+
+
+#=
+Julia - GSOC
+
+Ahmed Madbouly
+
+Sample for LRTA
+=#
+
+println("\nLTRA:")
+@testset "LRTA" begin
+    # Initialize LRTAStarAgentProgram with an OnlineSearchProblem.
+
+    lrtastar_program = OnlineSearchProblem("State_3", "State_5", AIMACore.one_dim_state_space, AIMACore.one_dim_state_space_least_costs);
+    lrtastar_agentprogram = LRTAStarAgentProgram(lrtastar_program);
+
+    @test execute(lrtastar_agentprogram, "State_3") == "Right";
+
+    @test execute(lrtastar_agentprogram, "State_4") == "Left";
+
+    @test execute(lrtastar_agentprogram, "State_3") == "Right";
+
+    @test execute(lrtastar_agentprogram, "State_4") == "Right";
+
+    @test execute(lrtastar_agentprogram, "State_5") == nothing;
+
+    lrtastar_agentprogram = LRTAStarAgentProgram(lrtastar_program);
+
+    @test execute(lrtastar_agentprogram, "State_4") == "Left";
+
+    lrtastar_agentprogram = LRTAStarAgentProgram(lrtastar_program);
+
+    @test execute(lrtastar_agentprogram, "State_5") == nothing;
+end
+
+
+println("And-Or-Graph-Search:\n")  # Not Completed Yet
+#@test test_and_or_graph_search()
+
+
+println("\nOnline-DFS-Agent:")	# Not Completed Yet
+
