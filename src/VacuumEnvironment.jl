@@ -4,7 +4,6 @@ export RunTableDrivenVacuumAgent, RunTableDrivenVacuumAgentResult,
        RunReflexVacuumAgent, RunReflexVacuumAgentResult,
        RunModelBasedVacuumAgent, RunModelBasedVacuumAgentResult
 
-using Compat
 using AIMACore
 
 import AIMACore: execute, interpret_input, rule_match, update_state, lookup
@@ -30,7 +29,7 @@ If *Dirt* is found it will *Suck* the *Dirt* and *Clean* the location.
 
 The *Environment* is still abstract as it gets expressed through its components.
 """
-@compat abstract type VacuumEnvironment <: Environment end
+abstract type VacuumEnvironment <: Environment end
 
 """
 In a *VacuumEnvironment* a robot can only read where it's current location is
@@ -304,11 +303,11 @@ function update_state(state::ModelVacuumState, action::Action,
     #If previous action does not match reset the model to initialized
     if (action == Action_Right)
         if (loc == :loc_A)
-            copy!(model,[-1,-1,-1,-1])
+            copyto!(model,[-1,-1,-1,-1])
         end
     elseif (action == Action_Left)
         if (loc == :loc_B)
-            copy!(model,[-1,-1,-1,-1])
+            copyto!(model,[-1,-1,-1,-1])
         end
     elseif (action == Action_Suck)
         if (model[1]==1)

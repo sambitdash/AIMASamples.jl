@@ -1,0 +1,17 @@
+name = "AIMASamples"
+uuid = "ae39c514-1d25-5885-ac9a-73e3440aca1e"
+authors = ["Sambit Kumar Dash<sambitdash@gmail.com> "]
+
+[deps]
+AIMACore = "705ffe6d-fbc5-55dd-872d-06a2c97ac1ee"
+LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+
+[compat]
+julia = "1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

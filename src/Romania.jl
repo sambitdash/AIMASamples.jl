@@ -98,7 +98,8 @@ end
 
 heuristic(problem::RomaniaRoadMapProblem, state::In) = problem.hSLD[state.place]
 
-goal_test(problem::RomaniaRoadMapProblem, state::In) = (state == problem.goal_state)
+goal_test(problem::RomaniaRoadMapProblem, state::In) =
+    (state == problem.goal_state)
 
 function actions(problem::RomaniaRoadMapProblem, state::In)
     ret=[]
@@ -111,13 +112,15 @@ end
 const solveRomanianMapProblemResultBFS =
     [(:Arad, 0), (:Sibiu, 140), (:Fagaras,239), (:Bucharest, 450)]
 const solveRomanianMapProblemResultMinCost =
-    [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317), (:Bucharest, 418)]
+    [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317),
+     (:Bucharest, 418)]
 const solveRomanianMapProblemResultDLS =
-    [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317), (:Bucharest, 418)]
+    [(:Arad, 0), (:Sibiu, 140), (:RimnicuVilcea, 220), (:Pitesti, 317),
+     (:Bucharest, 418)]
 const solveRomanianMapProblemResultIDS =
     [(:Arad, 0), (:Sibiu, 140), (:Fagaras,239), (:Bucharest, 450)]
 
-const solveRomanianMapProblemResultGSB = solveRomanianMapProblemResultMinCost
+const solveRomanianMapProblemResultGSB = solveRomanianMapProblemResultBFS
 const solveRomanianMapProblemResultGSU = solveRomanianMapProblemResultMinCost
 const solveRomanianMapProblemResultRBF = solveRomanianMapProblemResultMinCost
 const solveRomanianMapProblemResultGSD = solveRomanianMapProblemResultIDS
@@ -137,11 +140,11 @@ GSU = GraphSearchUniformCost(In(""))
 GSBF = GraphSearchBestFirst(In(""))
 GSAS = GraphSearchAStar(In(""))
 
-function solveRomanianMapProblem{T}(obj::T)
+function solveRomanianMapProblem(obj::T) where T
     problem = RomaniaRoadMapProblem{T}(In("Arad"), In("Bucharest"), obj)
     path = search(problem)
     path isa Symbol && return path
-    ret=[]
+    ret=Tuple{Symbol, Int}[]
     for iter in path
         push!(ret, (iter.state.place, iter.path_cost))
     end

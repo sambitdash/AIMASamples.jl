@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 
 using AIMASamples.Vacuum
 @testset "Vacuum" begin
@@ -10,16 +10,16 @@ end
 
 using AIMASamples.Romania
 @testset "Romania" begin
-    @test solveRomanianMapProblemBFS() == solveRomanianMapProblemResultBFS
-    @test solveRomanianMapProblemUCS() == solveRomanianMapProblemResultMinCost
-    @test solveRomanianMapProblemDLS() == solveRomanianMapProblemResultDLS
-    @test solveRomanianMapProblemIDS() == solveRomanianMapProblemResultIDS
-    @test solveRomanianMapProblemGSB() == solveRomanianMapProblemResultGSB
-    @test solveRomanianMapProblemGSD() == solveRomanianMapProblemResultGSD
-    @test solveRomanianMapProblemGSU() == solveRomanianMapProblemResultGSU
-    @test solveRomanianMapProblemGSAS() == solveRomanianMapProblemResultGSAS
-    @test solveRomanianMapProblemGSBF() == solveRomanianMapProblemResultGSBF
-    @test solveRomanianMapProblemRBF() == solveRomanianMapProblemResultRBF
+   @test solveRomanianMapProblemBFS()  == solveRomanianMapProblemResultBFS
+   @test solveRomanianMapProblemUCS()  == solveRomanianMapProblemResultMinCost
+   @test solveRomanianMapProblemDLS()  == solveRomanianMapProblemResultDLS
+   @test solveRomanianMapProblemIDS()  == solveRomanianMapProblemResultIDS
+   @test solveRomanianMapProblemGSB()  == solveRomanianMapProblemResultGSB
+   @test solveRomanianMapProblemGSD()  == solveRomanianMapProblemResultGSD
+   @test solveRomanianMapProblemGSU()  == solveRomanianMapProblemResultGSU
+   @test solveRomanianMapProblemGSAS() == solveRomanianMapProblemResultGSAS
+   @test solveRomanianMapProblemGSBF() == solveRomanianMapProblemResultGSBF
+   @test solveRomanianMapProblemRBF()  == solveRomanianMapProblemResultRBF
 end
 
 using AIMASamples.SlideBlock

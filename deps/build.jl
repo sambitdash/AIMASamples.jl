@@ -1,10 +1,14 @@
 #Download aima-data
-using Base.LibGit2
+using LibGit2
+using Pkg
+
+println("Downloading AIMACore from GitHub")
+Pkg.clone("https://github.com/sambitdash/AIMACore.jl")
 
 !isdir("downloads") && mkdir("downloads")
 cd("downloads")
 
-println("Downloading aima-data from github")
+println("Downloading aima-data from GitHub")
 if !isdir("aima-data")
     repo_path = joinpath("aima-data")
     repo_url  = "https://github.com/aimacode/aima-data.git"

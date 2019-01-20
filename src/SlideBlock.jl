@@ -27,10 +27,10 @@ struct Grid{T} <: State
     h::UInt
 end
 
-function Grid(v::Vector{Int}, T)
+function Grid{T}(v::Vector{Int}) where T
     N = T*T
     @assert length(v) == N E_INVALID_INPUT
-    loc = Vector{Tuple{Int, Int}}(N)
+    loc = Vector{Tuple{Int, Int}}(undef, N)
     sum = UInt(0)
     for i = 1:N
         n = v[i]
@@ -42,10 +42,10 @@ function Grid(v::Vector{Int}, T)
     return Grid{T}(loc, sum)
 end
 
-Grid(T) = Grid([x for x = 0:T*T-1], T)
+Grid(T::Int) = Grid{T}([x for x = 0:T*T-1])
 
-dist{T}(g1::Grid{T}, g2::Grid{T}) = sum(dist.(g1.loc, g2.loc))
-h2{T}(g1::Grid{T}, g2::Grid{T}) = count(g1.loc .!= g2.loc)
+dist(g1::Grid{T}, g2::Grid{T}) where T = sum(dist.(g1.loc, g2.loc))
+h2(g1::Grid{T}, g2::Grid{T})   where T = count(g1.loc .!= g2.loc)
 
 ==(g1::Grid, g2::Grid) = hash(g1) == hash(g2)
 
@@ -53,7 +53,7 @@ hash(g::Grid, h::UInt) = xor(g.h, h)
 
 function convert(::Type{Matrix{Int}}, g::Grid{T}) where T
     N = T*T
-    m = Matrix{Int}(T, T)
+    m = Matrix{Int}(undef, T, T)
     for i = 1:N
         t = g.loc[i]
         m[t[2], t[1]] = i - 1
@@ -84,11 +84,12 @@ mutable struct SlideBlockProblem{SA <: SearchAlgorithm, T} <: Problem
     h::Function
 end
 
-SlideBlockProblem{SA <: SearchAlgorithm, T}(init::Grid{T}, sa::SA, fh::Function) =
+SlideBlockProblem(init::Grid{T},
+                  sa::SA, fh::Function) where {SA <: SearchAlgorithm, T} =
     SlideBlockProblem(init, Grid(T), sa, fh)
 
-function result{SA <: SearchAlgorithm, T}(problem::SlideBlockProblem{SA,T},
-    state::Grid{T}, action::Move)
+function result(problem::SlideBlockProblem{SA,T},
+                state::Grid{T}, action::Move) where {SA <: SearchAlgorithm, T}
     N = UInt(T*T)
     loc = deepcopy(state.loc)
     x1, y1 = loc[1]
@@ -118,7 +119,7 @@ heuristic(problem::SlideBlockProblem, state::Grid) = problem.h(state, problem.go
 
 goal_test(problem::SlideBlockProblem, state::Grid) = (state == problem.goal_state)
 
-function actions{T}(problem::SlideBlockProblem, state::Grid{T})
+function actions(problem::SlideBlockProblem, state::Grid{T}) where T
     ret=[]
     x1, y1 = state.loc[1]
     x1 != 1 && push!(ret, Move(:left))
@@ -128,9 +129,9 @@ function actions{T}(problem::SlideBlockProblem, state::Grid{T})
     return ret
 end
 
-function solveSlideBlockProblem{SA}(obj::SA, h::Function)
+function solveSlideBlockProblem(obj::SA, h::Function) where SA
     vinit = [7, 2, 4, 5, 0, 6, 8, 3, 1]
-    problem = SlideBlockProblem(Grid(vinit, 3), obj, h)
+    problem = SlideBlockProblem(Grid{3}(vinit), obj, h)
     path = search(problem)
     path isa Symbol && return path
     ret=[]

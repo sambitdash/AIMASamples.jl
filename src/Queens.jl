@@ -32,12 +32,12 @@ mutable struct Grid{T} <: State
 end
 
 # This heuristic is not relevant as this is the same for every step
-h{T}(g::Grid{T}) = T - count(x->x > 0, g.qloc)
+h(g::Grid{T}) where T = T - count(x->x > 0, g.qloc)
 
 Grid(T::Int) = Grid{T}(zeros(Int, T))
 
 function convert(::Type{BitArray{2}}, g::Grid{T}) where T
-    m = BitArray{2}(T, T)
+    m = BitArray{2}(undef, T, T)
     l = g.qloc
     for i = 1:T
         l[i] == 0 && continue
@@ -98,7 +98,7 @@ function cannot_place(state::Grid{T}, i, j) where T
     return false
 end
 
-actions{T}(problem::NQueensProblem, state::Grid{T}) =
+actions(problem::NQueensProblem, state::Grid{T}) where T =
     Place.([(i, j) for i=1:T for j=1:T if !cannot_place(state, i, j)])
 
 function solveNQueensProblem(obj::SA,
@@ -160,7 +160,7 @@ random_state(s::Grid{T}) where T = random_state(T)
 const BIT_OPERATION = true
 
 function to_bits(s1::Grid{8}; mutate=false)
-    b1 = BitArray(24)
+    b1 = BitArray(undef, 24)
     l = s1.qloc
     it = 0
     for i = 1:8
@@ -195,7 +195,7 @@ function bit_reproduce(s1::Grid{8}, s2::Grid{8})
     b1 = to_bits(s1)
     b2 = to_bits(s2)
     c = rand(1:24)
-    copy!(b1[c+1:24], b2[c+1:24])
+    copyto!(b1[c+1:24], b2[c+1:24])
     return from_bits(b1)
 end
 
@@ -210,7 +210,7 @@ function reproduce(s1::Grid{T}, s2::Grid{T}) where T
     BIT_OPERATION && T == 8 && return bit_reproduce(s1, s2)
     c = rand(1:T)
     l = copy(s1.qloc)
-    copy!(l[c+1:T], s2.qloc[c+1:T])
+    copyto!(l[c+1:T], s2.qloc[c+1:T])
     return Grid{T}(l)
 end
 
